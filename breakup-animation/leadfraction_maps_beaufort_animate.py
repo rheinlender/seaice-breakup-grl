@@ -20,9 +20,6 @@ from mpl_toolkits.axes_grid1.colorbar import colorbar
 import matplotlib.ticker as mticker
 
 
-# In[98]:
-
-
 def prepare_grid(ds):
     
     # Get x-y grid from model
@@ -67,10 +64,11 @@ def main():
     cbargs = {"ticks": [0, 90],  "orientation":"horizontal"}
     
     # make figure
-    fig = plt.figure()
+    fig = plt.figure(figsize=(4, 3))
     
     # set background map
     ax = plotmap();
+    axpos = ax.get_position().get_points()
     
     for i in range(t1,t2):
 
@@ -79,7 +77,7 @@ def main():
 
         # set titles
         datestr = dt.datetime.strftime(time[i], "%Y-%m-%d %H:%M")
-        ax.set_title(datestr, x=0.5, y=0.92, fontsize=12)
+        ax.set_title(datestr, x=0.5, y=axpos[1,0]-0.06, fontsize=12)
         #ax.text(0.5,0.92,datestr,horizontalalignment='center',
         #    transform=ax.transAxes, fontsize=12, bbox=dict(facecolor='white', edgecolor='None', alpha=0.))
 
@@ -88,7 +86,7 @@ def main():
                         width="40%",  # width = 50% of parent_bbox width
                         height="3%",  # height : 5%
                         loc='lower left',
-                        bbox_to_anchor=(0.18, 0.07, 1, 1),
+                        bbox_to_anchor=(axpos[0,0]+0.05, axpos[1,0]-axpos[1,1]+0.05, 1, 1),
                         bbox_transform=ax.transAxes,
                         borderpad=0)
 
@@ -100,7 +98,7 @@ def main():
         # save figure
         figname = outpath_plots+'leadfraction_beaufort' + str(dt.datetime.strftime(time[i],'%Y%m%d-%H:%M')) + '.png'
         print("saving ", figname)
-        fig.savefig(figname, dpi=300, bbox_inches='tight')   
+        fig.savefig(figname, dpi=200, bbox_inches='tight')   
 
 
 # In[63]:
@@ -108,11 +106,11 @@ def main():
 
 # Run Main
 plt.close('all')
-outpath_plots = '/cluster/home/rheinlender/projects/aoi_case_study/python/breakup-paper/figs_animation/'
+outpath_plots = '/cluster/home/rheinlender/projects/aoi_case_study/breakup-paper/breakup-animation/320x240/'
 
 # Open Mooring
-fl = '/cluster/work/users/rheinlender/breakup2013/wrf-exp/start_20130213_nudging/expt_01_wrf10/outputs-v11/Moorings.nc'
-ds = xr.open_dataset(fl)
+fl = '/cluster/projects/nn9624k/rheinlender/breakup2013/data/wrf-exp/start_20130213_nudging/expt_01_wrf10/outputs-v11/Moorings.nc'
+ds = xr.load_dataset(fl)
 
 # Compute Thin ice conc + open water
 sic_thin = 1-ds['sic'] + ds['sic_thin']
@@ -120,8 +118,9 @@ sic_thin = sic_thin*100 # in %
 
 time = ds['time'].time.values.astype('datetime64[ms]').astype('O')
 
-t1 = 142
-t2 = sic_thin.shape[0]
+t1 = 0
+t2 = 1
+#t2 = sic_thin.shape[0]
 
 proj = ProjectionInfo() # default nextsim projection
 
